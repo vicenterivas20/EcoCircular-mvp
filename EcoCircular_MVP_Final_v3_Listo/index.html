@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoCircular | Sistema de Cumplimiento Ambiental</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="EcoCircular" class="logo" />
+      <div>
+        <h1>EcoCircular</h1>
+        <p>Sistema Inteligente de Gestión de Cumplimiento Ambiental</p>
+        <small>Cambios positivos para la protección del medio ambiente</small>
+      </div>
+    </div>
+    <span class="version">MVP 1.0</span>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <section class="card">
+        <h2>Paso 1 · Crear proyecto</h2>
+
+        <label for="cliente">Cliente / titular</label>
+        <input id="cliente" placeholder="Ej: Consulting & Energy Ltda." />
+
+        <label for="proyecto">Nombre del proyecto</label>
+        <input id="proyecto" placeholder="Ej: Central Biomasa La Gloria" />
+
+        <label for="responsable">Responsable EcoCircular</label>
+        <input id="responsable" placeholder="Ej: Sebastián" />
+
+        <button id="crearProyecto" class="primary">Crear proyecto</button>
+      </section>
+
+      <section>
+        <h2 class="side-title">Historial de proyectos</h2>
+        <div id="listaProyectos" class="project-list"></div>
+        <p class="small-note">
+          Esta versión guarda datos en el navegador. Para una versión comercial se recomienda base de datos, login y control de accesos.
+        </p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section id="bienvenida" class="welcome">
+        <div class="card hero">
+          <h2>Bienvenido a EcoCircular</h2>
+          <p>
+            Crea un proyecto, carga una RCA o resolución asociada, y genera una propuesta de obligaciones ambientales mediante inteligencia artificial.
+          </p>
+          <div class="professional-note">
+            <strong>Aviso profesional:</strong> La propuesta generada mediante IA es un apoyo para revisión documental y no reemplaza la validación técnica de un profesional.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Flujo del MVP</h2>
+          <ol class="flow">
+            <li>Crear proyecto.</li>
+            <li>Subir documento PDF.</li>
+            <li>Generar propuesta de obligaciones.</li>
+            <li>Revisar, validar y exportar.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="workspace" class="hidden">
+        <section class="steps">
+          <div><span>1</span><strong>Proyecto</strong><p>Cliente y responsable.</p></div>
+          <div><span>2</span><strong>Documento</strong><p>Carga de PDF.</p></div>
+          <div><span>3</span><strong>IA</strong><p>Propuesta de obligaciones.</p></div>
+          <div><span>4</span><strong>Validación</strong><p>Revisión y Excel.</p></div>
+        </section>
+
+        <section class="card">
+          <div class="project-header">
+            <div>
+              <h2 id="tituloProyecto">Proyecto</h2>
+              <p id="detalleProyecto" class="muted"></p>
+            </div>
+            <button id="nuevoAnalisis" class="outline">Nuevo análisis</button>
+          </div>
+
+          <div class="metrics">
+            <div><strong id="metricaTotal">0</strong><span>Obligaciones</span></div>
+            <div><strong id="metricaRevision">0</strong><span>Requieren revisión</span></div>
+            <div><strong id="metricaValidadas">0</strong><span>Validadas</span></div>
+            <div><strong id="metricaArchivo">Sin PDF</strong><span>Documento</span></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Paso 2 · Cargar documento</h2>
+          <div class="upload-box">
+            <label for="archivoPDF">RCA o resolución asociada en PDF</label>
+            <input id="archivoPDF" type="file" accept="application/pdf" />
+            <p class="muted">Si el PDF es una imagen escaneada, esta versión puede requerir OCR en una etapa futura.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Paso 3 · Generar propuesta de obligaciones</h2>
+          <div class="professional-note">
+            La IA identifica posibles obligaciones exigibles al titular. El resultado debe revisarse antes de usarse como respaldo formal.
+          </div>
+
+          <div class="api-warning">
+            La API Key es personal. Se usa solo desde este navegador para consultar Google Gemini. No se guarda en servidores.
+          </div>
+
+          <div class="api-row">
+            <div>
+              <label for="apiKey">API Key Gemini</label>
+              <input id="apiKey" type="password" placeholder="Pega aquí tu API Key de Google AI Studio" />
+            </div>
+            <button id="analizarIA" class="blue">Generar propuesta</button>
+          </div>
+
+          <div class="actions">
+            <button id="analizarReglas" class="gray">Análisis rápido con reglas locales</button>
+            <button id="cargarEjemplo" class="outline">Cargar ejemplo</button>
+          </div>
+
+          <div id="progressWrap" class="progress-wrap">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <p id="estado" class="muted status-line"></p>
+        </section>
+
+        <section class="card">
+          <div class="table-header">
+            <div>
+              <h2>Paso 4 · Obligaciones detectadas</h2>
+              <p class="muted">Revisa, edita, valida y exporta las obligaciones generadas.</p>
+            </div>
+
+            <div class="filters">
+              <button class="filter active" data-filter="Todas">Todas</button>
+              <button class="filter" data-filter="Requiere revisión">Requieren revisión</button>
+              <button class="filter" data-filter="Validada">Validadas</button>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="agregarObligacion" class="blue">Agregar obligación</button>
+            <button id="exportarExcel">Exportar Excel</button>
+            <button id="guardarProyecto" class="gray">Guardar proyecto</button>
+            <button id="limpiarObligaciones" class="red">Limpiar obligaciones</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Página RCA</th>
+                  <th>Obligación</th>
+                  <th>Tipo</th>
+                  <th>Plazo</th>
+                  <th>Referencia RCA</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tablaObligaciones"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Prompt IA utilizado</h2>
+          <textarea id="promptIA" readonly></textarea>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal-backdrop">
+    <div class="modal">
+      <h2>Extracto de respaldo</h2>
+      <p id="modalMeta" class="muted"></p>
+      <pre id="modalTexto"></pre>
+      <button id="cerrarModal" class="gray">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="js/prompts.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/pdf-reader.js"></script>
+  <script src="js/gemini.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
